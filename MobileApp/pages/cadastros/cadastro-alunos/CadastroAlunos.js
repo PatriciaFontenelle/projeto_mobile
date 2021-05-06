@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ScrollView, Text, StyleSheet } from 'react-native'
 import { Input } from 'react-native-elements';
-import DatePicker from 'react-native-date-picker'
+import DatePicker from 'react-native-date-picker';
+
 
 const CadastroAlunos = (props) => {
     const [nome, setNome] = useState('');
