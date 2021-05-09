@@ -1,81 +1,57 @@
-import React, { useState } from 'react';
-import { ScrollView, Text, StyleSheet } from 'react-native'
+import React, {useState} from 'react';
+import { ScrollView, Text, StyleSheet, Button } from 'react-native';
 import { Input } from 'react-native-elements';
 import DatePicker from 'react-native-date-picker';
+import { create_student } from '../../../database/alunos/querys';
+import { create } from 'react-test-renderer';
 
-
-const CadastroAlunos = (props) => {
+const CadastroAlunos = () => {
     const [nome, setNome] = useState('');
     const [sobrenome, setSobrenome] = useState('');
     const [matricula, setMatricula] = useState('');
     const [email, setEmail] = useState('');
     const [dataNascimento, setDataNascimento] = useState(new Date());
-    
-    
-    return (
-        <ScrollView style={styles.container}>
-            <Input
-                label='Nome'
-                inputContainerStyle={styles.inputBorder}
-                labelStyle={styles.input}
-                onChangeText={value => setNome(value)}
-            />
-            
-            <Input
-                label='Sobrenome'
-                onChangeText={value => setSobrenome(value)}
-            />
-            
-            <Input
-                label='Matrícula'
-                onChangeText={value => setMatricula(value)}
-            />
-            
-            <Input
-                label='E-mail'
-                onChangeText={value => setEmail(value)}
-            />
-            <Text style={styles.dataNascimento}>Data de Nascimento</Text>
-            <DatePicker
-                style={styles.datePicker}
-                date={dataNascimento}
-                mode='date'
-                locale="pt-BR"
-                onDateChange={setDataNascimento}
-                format="DD-MM-YYYY"
-                label="Teste"
-                fadeToColor='none'
-            />
 
-            <Text>{nome} - {matricula}</Text>
-            <Text>{email}</Text>
-            <Text>{dataNascimento.getDate()}</Text>
+    return (    
+        <ScrollView>
+            <Input
+                label="Nome"
+                onChangeText={(value) => setNome(value)}
+            />
+            <Input
+                label="Sobrenome"
+                onChangeText={(value) => setSobrenome(value)}
+            />
+            <Input
+                label="Matrícula"
+                onChangeText={(value) => setMatricula(value)}
+            />
+            <Input
+                label="E-mail"
+                onChangeText={(value) => setEmail(value)}
+            />
+            <Text style={styles.dataNascimento}>Data de Nascimento: </Text>
+            <DatePicker
+                date={dataNascimento}
+                format="DD/MM/YYYY"
+                mode="date"
+                locale="pt-BR"
+                fadeToColor="none"
+                onDateChange={(date) => setDataNascimento(date)}
+            />
+            <Button title="SALVAR" onPress={ create_student (nome, matricula)}/>
         </ScrollView>
     )
 }
 
 const styles = StyleSheet.create({
     dataNascimento: {
+        marginLeft: 10,
         color: 'gray',
         fontSize: 16,
         fontWeight: 'bold',
-        marginLeft: 10,
         marginBottom: 10
-    },
-
-    datePicker: {
-        marginRight: 'auto',
-        marginLeft: 'auto'
-    },
-
-    inputBorder: {
-        borderBottomColor: 'gray',
-    },
-
-    input: {
-        color: 'gray'
     }
-
 })
 
 export default CadastroAlunos;
