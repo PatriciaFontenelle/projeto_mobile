@@ -7,6 +7,8 @@ const Home = ({navigation}) => {
     return (
             <View>
                 <Button title="CADASTROS" onPress={() => navigation.navigate('CadastrosMenu')}/>
+                <Button title="CONSULTAS" onPress={() => navigation.navigate('Cada')} />
+                <Button title="LANÇAR NOTA" onPress={() => navigation.navigate('ListaAlunos')} />
             </View>
     )
 }

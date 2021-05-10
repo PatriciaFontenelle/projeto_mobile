@@ -12,6 +12,18 @@ const CadastroAlunos = () => {
     const [email, setEmail] = useState('');
     const [dataNascimento, setDataNascimento] = useState(new Date());
 
+    function onSave() {
+        const data = {
+            nome: nome,
+            sobrenome: sobrenome,
+            matricula: matricula,
+            email: email,
+            dataNascimento: dataNascimento
+        }
+
+        create_student(data);
+    }
+
     return (    
         <ScrollView>
             <Input
@@ -39,7 +51,7 @@ const CadastroAlunos = () => {
                 fadeToColor="none"
                 onDateChange={(date) => setDataNascimento(date)}
             />
-            <Button title="SALVAR" onPress={ create_student (nome, matricula)}/>
+            <Button title="SALVAR" onPress={onSave}/>
         </ScrollView>
     )
 }
