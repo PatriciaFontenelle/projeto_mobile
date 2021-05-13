@@ -28,7 +28,7 @@ const CadastroAluno = ({navigation}) => {
         }
 
         const dataNascimentoFormatted = dataNascimento.getDate() + '/' + (dataNascimento.getMonth() + 1) + '/' + dataNascimento.getFullYear();
-        console.log(dataNascimentoFormatted)
+
         const data = {
             nome: nome,
             sobrenome: sobrenome,

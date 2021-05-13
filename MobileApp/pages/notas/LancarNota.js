@@ -123,7 +123,6 @@ const LancarNota = (props) => {
         if (tipoQuery === 'Insert') {
             lancar_nota(data, onSuccess, onError)
         } else if (tipoQuery === 'Update') {
-            console.log('Passou')
             editar_nota(data, onSuccess, onError)
         }
     }

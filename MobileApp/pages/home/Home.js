@@ -18,6 +18,7 @@ const Home = ({navigation}) => {
                 <Button title="ALUNOS" onPress={() => navigation.navigate('ListaAlunos', { nextScreen: 'ConsultaAluno' })}/>
                 <Button title="DISCIPLINAS" onPress={() => navigation.navigate('ListaDisciplinas')} />
                 <Button title="NOTAS" onPress={() => navigation.navigate('ListaAlunos', { nextScreen: 'LancarNota'})} />
+                <Button buttonStyle={styles.btnSair} title="SAIR" onPress={() => navigation.navigate('Login')} />
             </View>
         </View>
     )
@@ -35,6 +36,9 @@ const styles = StyleSheet.create({
         width: 120,
         alignSelf: 'center',
         marginBottom: 30
+    },
+    btnSair: {
+        backgroundColor: 'red',
     }
 })
 

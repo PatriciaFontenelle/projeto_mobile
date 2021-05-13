@@ -13,6 +13,7 @@ import CadastroDisciplina from './pages/disciplinas/CadastroDisciplina';
 import ConsultaDisciplina from './pages/disciplinas/ConsultaDisciplina';
 import ListaDisciplinas from './pages/disciplinas/ListaDisciplinas';
 import LancarNota from './pages/notas/LancarNota';
+import Login from './pages/login/Login';
 
 const Stack = createStackNavigator();
 
@@ -40,7 +41,7 @@ const App = () => {
       <SafeAreaProvider>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName="Home"
+            initialRouteName="Login"
             screenOptions={{
               headerTitleAlign: "center",
               headerStyle: {
@@ -94,6 +95,11 @@ const App = () => {
               name="LancarNota"
               component={LancarNota}
               options={{ title: 'NOTAS' }}
+            />
+            <Stack.Screen
+              name="Login"
+              component={Login}
+              options={{ headerShown: false }}
             />
             
           </Stack.Navigator>
