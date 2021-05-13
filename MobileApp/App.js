@@ -6,12 +6,13 @@ import Home from './pages/home/Home';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from 'react-native-elements';
 
-import CadastroMenu from './pages/cadastros/cadastro-menu/CadastroMenu'
-import CadastroAlunos from './pages/cadastros/cadastro-alunos/CadastroAlunos'
-import CadastroDisciplina from './pages/cadastros/cadastro-discilplina/CadastroDisciplina'
-import LancarNota from './pages/cadastros/lancar-notas/LancarNota'
-import ListaAlunos from './components/lista-alunos/ListaAlunos'
-import { ScrollView } from 'react-native-gesture-handler';
+import CadastroAluno from './pages/alunos/CadastroAluno';
+import ConsultaAluno from './pages/alunos/ConsultaAluno';
+import ListaAlunos from './pages/alunos/ListaAlunos';
+import CadastroDisciplina from './pages/disciplinas/CadastroDisciplina';
+import ConsultaDisciplina from './pages/disciplinas/ConsultaDisciplina';
+import ListaDisciplinas from './pages/disciplinas/ListaDisciplinas';
+import LancarNota from './pages/notas/LancarNota';
 
 const Stack = createStackNavigator();
 
@@ -21,17 +22,16 @@ const theme = {
   },
   Input: {
     labelStyle: { color: 'gray' },
-    inputContainerStyle: { background: 'red'}
+    containerStyle: { backgroundColor: 'white' },
+    inputContainerStyle: {borderBottomColor: 'gray', backgroundColor: 'white'}
   },
   Button: {
-    color: '#09103A'
+    buttonStyle: {
+      alignSelf: 'center',
+      marginTop: 20,
+      width: 200,
+      backgroundColor: '#5cbe83'}
   },
-  View: {
-    style: {marginTop: 20}
-  },
-  ScrollView: {
-    style: {marginTop: 20}
-  }
 }
 
 const App = () => {
@@ -39,37 +39,63 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <SafeAreaProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Home">
+          <Stack.Navigator
+            initialRouteName="Home"
+            screenOptions={{
+              headerTitleAlign: "center",
+              headerStyle: {
+                backgroundColor: '#fff',
+                borderBottomColor: '#5cbe83',
+                borderBottomWidth: 3,
+              },
+              headerTintColor: '#5cbe83',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+              cardStyle: { backgroundColor: 'white' }
+            }}
+          >
             <Stack.Screen
               name="Home"
               component={Home}
-              options={{ title: 'Home' }}
+              options={{ title: 'HOME' }}
             />
             <Stack.Screen
-              name="CadastrosMenu"
-              component={CadastroMenu}
-              options={{ title: 'Cadastros' }}
+              name="CadastroAluno"
+              component={CadastroAluno}
+              options={{ title: 'CADASTRAR ALUNO' }}
             />
             <Stack.Screen
-              name="CadastrarAluno"
-              component={CadastroAlunos}
-              options={{ title: 'Cadastrar Aluno' }}
-            />
-            <Stack.Screen
-              name="CadastrarDisciplina"
-              component={CadastroDisciplina}
-              options={{ title: 'Cadastrar Disciplina' }}
-            />
-            <Stack.Screen
-              name="LancarNota"
-              component={LancarNota}
-              options={{ title: 'Lançar Nota' }}
+              name="ConsultaAluno"
+              component={ConsultaAluno}
+              options={{ title: 'ALUNO' }}
             />
             <Stack.Screen
               name="ListaAlunos"
               component={ListaAlunos}
-              options={{ title: 'Lançar Nota' }}
+              options={{ title: 'ALUNOS' }}
             />
+            <Stack.Screen
+              name="CadastroDisciplina"
+              component={CadastroDisciplina}
+              options={{ title: 'CADASTRAR DISCIPLINA' }}
+            />
+            <Stack.Screen
+              name="ConsultaDisciplina"
+              component={ConsultaDisciplina}
+              options={{ title: 'DISCIPLINA' }}
+            />
+            <Stack.Screen
+              name="ListaDisciplinas"
+              component={ListaDisciplinas}
+              options={{ title: 'DISCIPLINAS' }}
+            />
+            <Stack.Screen
+              name="LancarNota"
+              component={LancarNota}
+              options={{ title: 'NOTAS' }}
+            />
+            
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>
