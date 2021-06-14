@@ -1,17 +1,38 @@
 import React, { Component } from 'react'
 import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { Button, Input } from 'react-native-elements';
 import logo from '../../assets/logo.jpeg';
+import UserTeste from '../../database/user';
+import * as SecureStore from 'expo-secure-store';
+import Toast from 'react-native-toast-message';
+import { Constants } from 'react-native-unimodules';
 
+const showToast = (message, title="", type="success", duration=3000, position="bottom") => {
+    Toast.show({
+        type: type,
+        position: position,
+        text1: title,
+        text2: message,
+        visibilityTime: duration,
+        autoHide: true
+    })
+}
 
 export default class App extends Component {
     state = {
         email: '',
         senha: ''
     }
+
+    componentDidMount(){
+        console.log(Constants.systemFonts);
+    }
     
     constructor(props) {
         super(props);
         this.clicou = this.clicou.bind(this);
+        this.cadastrar = this.cadastrar.bind(this);
+        this.login = this.login.bind(this);
     }
 
     clicou() {
@@ -21,6 +42,34 @@ export default class App extends Component {
             alert('Usuário ou senha incorretos. Por favor, tente novamente.')
         }
     }
+
+    cadastrar() {
+        this.props.navigation.navigate('CadastroUsuario');
+    }
+
+    login() {
+        const userTeste = new UserTeste();
+        userTeste.Login(this.state.email, this.state.senha, async(result, error) => {
+            console.log('Result: ' + result)
+            
+            if(error) {
+                console.log(error)
+                return;
+            }
+
+
+            if(!result.auth) {
+                showToast('Usuário ou senha incorretos.', 'Erro', 'error');
+                return;
+            }
+
+            await SecureStore.setItemAsync('token', result.token);
+            console.log('token gerado: ' + result.token);
+            this.props.navigation.navigate('Home');
+        })
+        console.log('Login')
+
+    }
     
     render() {
         return (
@@ -29,24 +78,30 @@ export default class App extends Component {
                     source={logo}
                     style={styles.logo}
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Digite seu email"
+                <Input
+                    labelStyle={styles.input}
+                    inputContainerStyle={styles.inputContainer}
+                    placeholder="E-mail"
                     onChangeText={value => this.setState({email: value.toLowerCase()})}
                 />
-                <TextInput
-                    style={styles.input}
-                    textContentType="password"
-                    secureTextEntry={true}
-                    placeholder="Digite sua senha"
+                <Input
+                    labelStyle={styles.input}
+                    inputContainerStyle={styles.inputContainer}
+                    secureTextEntry={this.state.senha !== '' ? true : false}
+                    placeholder="Senha"
                     onChangeText={value => this.setState({ senha: value })}
                 />
-                <TouchableOpacity
-                    style={styles.botao}
-                    onPress={this.clicou}
-                >
-                    <Text style={styles.botaoText}>Login</Text>
-                </TouchableOpacity>
+                <Button
+                    title="Login"
+                    onPress={this.login}
+                    buttonStyle={styles.botaoLogin}
+                />
+                <Button 
+                    buttonStyle={styles.botaoCadastrar} 
+                    title="Cadastrar" 
+                    titleStyle={{color: '#5cbe83'}} 
+                    onPress={this.cadastrar}
+                />
             </View>
         )
     }
@@ -61,33 +116,31 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     logo: {
-        width: 300,
-        height: 300,
+        width: 200,
+        height: 200,
+        marginBottom:30
     },
     input: {
-        marginTop: 10,
-        padding: 10,
-        width: 300,
-        backgroundColor: '#5cbe83',
-        fontSize: 16,
-        fontWeight: 'bold',
-        borderRadius: 4,
-        color: 'white'
+        color: '#5cbe83',
+        alignSelf: "center"
 
     },
-    botao: {
+    inputContainer: {
+        color: '#5cbe83',
+        borderBottomColor: '#5cbe83',
+        borderBottomWidth: 2,
         width: 300,
-        height: 42,
-        backgroundColor: '#5cbe83',
-        marginTop: 10,
-        borderRadius: 4,
-        alignItems: 'center',
-        justifyContent: 'center'
-
+        alignSelf: "center"
     },
-    botaoText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#fff'
+    botaoCadastrar: {
+        color: '#5cbe83',
+        backgroundColor: 'white',
+        borderColor: '#5cbe83',
+        borderWidth: 2
+    },
+    botaoLogin: {
+        marginTop:0,
+        borderColor: '#5cbe83',
+        borderWidth: 2
     },
 })

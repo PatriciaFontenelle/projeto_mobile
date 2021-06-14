@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import Toast from 'react-native-toast-message';
 
 import Home from './pages/home/Home';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,6 +15,7 @@ import ConsultaDisciplina from './pages/disciplinas/ConsultaDisciplina';
 import ListaDisciplinas from './pages/disciplinas/ListaDisciplinas';
 import LancarNota from './pages/notas/LancarNota';
 import Login from './pages/login/Login';
+import CadastroUsuario from './pages/login/CadastroUsuario';
 
 const Stack = createStackNavigator();
 
@@ -37,6 +39,7 @@ const theme = {
 
 const App = () => {
   return (
+    <>
     <ThemeProvider theme={theme}>
       <SafeAreaProvider>
         <NavigationContainer>
@@ -101,11 +104,19 @@ const App = () => {
               component={Login}
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="CadastroUsuario"
+              component={CadastroUsuario}
+              options={{ title: 'CADASTRO' }}
+            />
             
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>
     </ThemeProvider>
+    
+    <Toast ref={(ref) => Toast.setRef(ref)} />
+    </>
   );
 }
 

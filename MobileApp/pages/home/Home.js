@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, Image } from 'react-native'
 import { Button } from 'react-native-elements';
-import logo from '../../assets/logo.jpeg'
+import logo from '../../assets/logo.jpeg';
+import * as SecureStore from 'expo-secure-store';
 
 
 const Home = ({navigation}) => {
+
+    useEffect(async() => {
+        const token = await SecureStore.getItemAsync('token');
+        console.log('token resgatado: ' + token);
+    }, [])
 
     return (
         <View style={styles.container}>
