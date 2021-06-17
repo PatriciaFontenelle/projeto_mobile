@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 import DisciplinaRepository from '../../database/disciplina';
 import { showToast } from '../../Funcs/funcs';
@@ -11,7 +11,6 @@ const CadastroDisciplina = ({navigation}) => {
     const onSave = () => {
         if (nome == '' || professor == '') {
             showToast('error', 'Erro!', 'Por favor, preencha todos os campos.')
-
             return;
         }
         const data = {

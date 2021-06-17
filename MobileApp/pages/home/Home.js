@@ -7,15 +7,8 @@ import * as SecureStore from 'expo-secure-store';
 
 const Home = ({navigation}) => {
 
-    useEffect(async() => {
-        const token = await SecureStore.getItemAsync('token');
-        console.log('token resgatado: ' + token);
-    }, [])
-
-    const logOut = async() => {
+    const logOut = async () => {
         await SecureStore.deleteItemAsync('token');
-        const token = await SecureStore.getItemAsync('token');
-        console.log('token resgatado (saiu): ' + token);
         navigation.navigate('Login');
     }
 

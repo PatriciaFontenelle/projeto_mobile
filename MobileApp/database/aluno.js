@@ -25,7 +25,7 @@ export default class AlunoRepository {
             callback(json.error, json.result)
         })
         .catch((e) => {
-            callback({}, e)
+            callback(e, null)
         })
     }
 
@@ -44,7 +44,7 @@ export default class AlunoRepository {
             callback(json.error, json.result)
         })
         .catch((e) => {
-            callback({}, e)
+            callback(e, null)
         })
     }
 
@@ -61,14 +61,10 @@ export default class AlunoRepository {
         })
             .then((res) => res.json())
             .then((json) => {
-                console.log("Json");
-                console.log(json)
                 callback(json.error, json.result)
             })
             .catch((e) => {
-                console.log('Erroou!')
-                console.log(e)
-                callback({}, e)
+                callback(e, null)
             })
     }
 
@@ -85,12 +81,10 @@ export default class AlunoRepository {
         })
             .then((res) => res.json())
             .then((json) => {
-                console.log(json)
                 callback(json.error, json.result)
             })
             .catch((e) => {
-                console.log(e)
-                callback({}, e)
+                callback(e, null)
             })
     }
     

@@ -11,29 +11,12 @@ const ListaDisciplinas = (props) => {
 
 
     useEffect(() => {
-        const onSuccess = (tx, results) => {
-            let data = [];
-            const rows = results.rows;
-            for (let i = 0; i < rows.length; i++) {
-                data.push(rows.item(i));
-            }
-            data.sort((a, b) => a.name > b.name ? 1 : -1);
-            setLista(data);
-            setListaOriginal(data)
-        }
-
-        const onError = (e) => {
-            console.log('Erro: ' + e)
-        }
-
         const disciplinaRepository = new DisciplinaRepository();
-
         disciplinaRepository.RetrieveAll((error, result) => {
             if (error) {
                 console.log(error);
             }
 
-            console.log(result)
             result.sort((a, b) => a.name > b.name ? 1 : -1);
             setLista(result);
             setListaOriginal(result)
@@ -41,8 +24,6 @@ const ListaDisciplinas = (props) => {
     }, [])
 
     const textChanged = (value) => {
-        console.log("Texto: " + value)
-        console.log(listaOriginal)
         if (value === '') {
             setLista(listaOriginal);
             return;

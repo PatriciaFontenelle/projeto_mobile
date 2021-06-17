@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { ScrollView, Text, StyleSheet, Alert } from 'react-native';
+import { ScrollView, Text, StyleSheet } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 import DatePicker from 'react-native-date-picker';
 import AlunoRepository from '../../database/aluno';
@@ -14,25 +14,18 @@ const CadastroAluno = ({navigation}) => {
     const [dataNascimento, setDataNascimento] = useState(new Date());
 
     const conferirEmail = (email) => {
+        setEmail(email);
         if (!validarEmail(email)) {
             setErroEmail("E-mail inválido!");
             return;
         }
         setErroEmail('');
-        setEmail(email);
     }
     
     const onSave = () => {
         if (nome === '' || sobrenome === '' || email === '' || dataNascimento === '' || matricula === '') {
-            Alert.alert(
-                "Erro!",
-                "Por favor, preencha todos os campos!",
-                [{
-                    text: 'Ok'
-                }]
-            )
-
-            return
+            showToast('error', 'Erro!', 'Todos os campos devem ser preenchidos!');
+            return;
         }
 
         if (erroEmail !== '') {
@@ -52,27 +45,16 @@ const CadastroAluno = ({navigation}) => {
 
         const alunoRepository = new AlunoRepository();
 
-        alunoRepository.Cadastrar(data, (err, result) => {
-            console.log('dnsjadnsajkd');
-            console.log(err)
-            if (err) {
-                let message = "Ocorreu um erro e o cadastro não foi feito. Por favor, tente novamente."
+        alunoRepository.Cadastrar(data, (error, result) => {
+            if (error) {                
+                console.log(error)
                 
-                if (err.code === 11000) {
+                if (error.code === 11000) {
                     showToast("error", "Erro!", "Essa matrícula já está sendo usada por outro aluno.");
                     return;
                 }
 
-                Alert.alert(
-                    'ERRO',
-                    message,
-                    [
-                        {
-                            text: 'Ok',
-                        },
-                    ],
-                    { cancelable: false },
-                );
+                showToast("error", "Erro!", "Ocorreu um erro e o cadastro não foi feito. Por favor, tente novamente.");
             }
             showToast(undefined, 'Sucesso!', 'O aluno foi cadastrado.');
             navigation.navigate('Home');

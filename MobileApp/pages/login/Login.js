@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity } from 'react-native';
 import { Button, Input, Icon } from 'react-native-elements';
 import logo from '../../assets/logo.jpeg';
 import UserRepository from '../../database/user';
@@ -55,7 +55,7 @@ export default class App extends React.Component {
             return;
         }
         const userRepository = new UserRepository();
-        userRepository.Login(this.state.email, this.state.senha, async(result, error) => {            
+        userRepository.Login(this.state.email, this.state.senha, async(error, result) => {            
             if(error) {
                 console.log(error)
                 return;

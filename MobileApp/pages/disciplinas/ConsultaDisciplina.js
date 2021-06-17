@@ -4,6 +4,7 @@ import { Input, Button, Icon } from 'react-native-elements';
 import DatePicker from 'react-native-date-picker';
 import { showToast } from '../../Funcs/funcs';
 import DisciplinaRepository from '../../database/disciplina';
+import AlunoDisciplinaRepository from '../../database/notas';
 
 const ConsultaDisciplina = (props) => {
     const { disciplina } = props.route.params;
@@ -59,6 +60,13 @@ const ConsultaDisciplina = (props) => {
     }
 
     const deletarDisciplina = () => {
+        const notaRepository = new AlunoDisciplinaRepository();
+        notaRepository.Delete(disciplina._id, (error, result) => {
+            if (error) {
+                console.log(error);
+                return;
+            }
+        })
         const disciplinaRepository = new DisciplinaRepository();
         disciplinaRepository.Delete(disciplina._id, (error, result) => {
             if (error) {

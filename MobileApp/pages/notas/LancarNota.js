@@ -20,6 +20,7 @@ const LancarNota = (props) => {
     const [av1, setAv1] = useState(notaPadrao.toFixed(2));
     const [av2, setAv2] = useState(notaPadrao.toFixed(2));
     const [av3, setAv3] = useState(notaPadrao.toFixed(2));
+    const [notaId, setNotaId] = useState('');
     const [tipoQuery, setTipoQuery] = useState('')
 
     useEffect(() => {
@@ -29,7 +30,6 @@ const LancarNota = (props) => {
                 console.log(error);
             }
 
-            console.log(result)
             result.sort((a, b) => a.name > b.name ? 1 : -1);
             setDisciplinas(result);
         })
@@ -53,42 +53,41 @@ const LancarNota = (props) => {
 
     }, [av1, av2, av3])
 
-    const onSelectDisciplina = (d) => {
+    const onSelectDisciplina = async (d) => {
         const notaInicial = 0;
+
+        setDisciplina(d);
+        setIsVisible(false);
 
         const data = {
             aluno: aluno._id,
-            disciplina: disciplina._id
+            disciplina: d._id
         }
 
         const alunoDisciplinaRepository = new AlunoDisciplinaRepository();
-        alunoDisciplinaRepository.getNota(data, (error, result) => {
+        await alunoDisciplinaRepository.getNota(data, (error, result) => {
             if (error) {
                 console.log(error);
                 setEditar(true);
                 return;
             }
-            if (result.length === 0) {
-                console.log('Testeeevxsdhgvchg')
-            }
 
-            if (result) {
+            if(!result) {
+                setTipoQuery('Insert');
+                setEditar(true);
+                setAv1(notaInicial.toFixed(2));
+                setAv2(notaInicial.toFixed(2));
+                setAv3(notaInicial.toFixed(2));
+            } else {
                 setTipoQuery('Update');
                 setEditar(false);
+                setNotaId(result._id)
                 setAv1(result.av1);
                 setAv2(result.av2);
                 setAv3(result.av3);
-            } else {
-                setTipoQuery('Insert');
-                setEditar(true);
-                setAv1(notaInicial);
-                setAv2(notaInicial);
-                setAv3(notaInicial);
             }
+            
         })
-
-        setDisciplina(d);
-        setIsVisible(false);
     }
 
     const onSave = () => {
@@ -101,26 +100,35 @@ const LancarNota = (props) => {
         }
 
         const alunoDisciplinaRepository = new AlunoDisciplinaRepository();
-        alunoDisciplinaRepository.Cadastrar(data, (error, result) => {
-            if (error) {
-                console.log(error);
-                showToast('error', 'Erro!', 'Não foi possível lançar a nota. Por favor, tente novamente.');
-                return;
-            }
-
-            showToast(undefined, 'Sucesso!', 'As notas foram lançadas.');
-            props.navigation.navigate('Home');
-        })
+        
 
         if (tipoQuery === 'Insert') {
-            lancar_nota(data, onSuccess, onError)
+            alunoDisciplinaRepository.Cadastrar(data, (error, result) => {
+                if (error) {
+                    console.log(error);
+                    showToast('error', 'Erro!', 'Não foi possível lançar a nota. Por favor, tente novamente.');
+                    return;
+                }
+
+                showToast(undefined, 'Sucesso!', 'As notas foram lançadas.');
+                props.navigation.navigate('Home');
+            })
         } else if (tipoQuery === 'Update') {
-            editar_nota(data, onSuccess, onError)
+            data._id = notaId
+            alunoDisciplinaRepository.Update(data, (error, result) => {
+                if (error) {
+                    console.log(error);
+                    showToast('error', 'Erro!', 'Não foi possível salvar as alterações. Por favor, tente novamente.');
+                    return;
+                }
+
+                showToast(undefined, 'Sucesso!', 'As alterações foram salvas.');
+                props.navigation.navigate('Home');
+            })
         }
     }
 
     const getDisciplinas = () => {
-        console.log(!disciplinas || disciplinas.length === 0)
         if (!disciplinas || disciplinas.length === 0) {
             Alert.alert(
                 'Erro!',

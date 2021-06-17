@@ -1,4 +1,5 @@
 import Toast from 'react-native-toast-message';
+import { StyleSheet } from 'react-native';
 
 export function showToast(type = 'success', title, message, duration = 3000, position = 'top') {
     console.log('Toast')
@@ -8,7 +9,7 @@ export function showToast(type = 'success', title, message, duration = 3000, pos
         text1: title,
         text2: message,
         visibilityTime: duration,
-        autoHide: true
+        autoHide: true,
     })
 }
 

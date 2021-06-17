@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { Input, Icon, Button } from 'react-native-elements';
-import UserTeste from '../../database/user';
+import UserRepository from '../../database/user';
 import {showToast, validarEmail} from '../../Funcs/funcs';
 
 const CadastroUsuario = ({navigation}) => {
@@ -44,21 +44,12 @@ const CadastroUsuario = ({navigation}) => {
     }
 
     const salvar = () => {
-        console.log('Salvar')
         if(erroSenha !== '' || erroConfirmaSenha !== '' || erroEmail !== '') {
-            showToast({
-                message: 'Por favor, verifique se todos os campos estão corretos.',
-                title: 'Erro',
-                type: 'error'
-            });
+            showToast('error', 'Erro!', 'Por favor, verifique se todos os campos estão corretos.');
             return;
         }
         if(nome === '' || sobrenome === '' || email === '' || senha === '' || confirmaSenha === '') {
-            showToast({
-                message: 'Todos os campos devem ser preenchidos!',
-                title: 'Erro',
-                type: 'error'
-            })
+            showToast('error', 'Erro!', 'Todos os campos devem ser preenchidos!');
             return;
         }
 
@@ -69,24 +60,21 @@ const CadastroUsuario = ({navigation}) => {
             password: senha
         }
 
-        const userTeste = new UserTeste();
-        userTeste.EmailIsRegistered(email, (error, result) => {
-            console.log('Teste')
-            console.log(error);
-            console.log(result)
+        const userRepository = new UserRepository();
+        userRepository.EmailIsRegistered(email, (error, result) => {
             if (result) {
                 showToast('error', 'Erro', 'O e-mail informado já está sendo utilizado por outro usuário!')
                 return;
             } else {
-                userTeste.Save(user, (error, result) => {
+                userRepository.Save(user, (error, result) => {
                     if (error) {
                         console.log(error);
                         return;
                     }
 
+                    showToast(undefined, 'Sucesso!', 'Usuário cadastrado.')
 
-
-                    console.log(result)
+                    navigation.navigate('Login');
                 })
             }
         })

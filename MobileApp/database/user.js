@@ -15,7 +15,7 @@ export default class UserRepository {
             callback(json.error, json.result);
         })
         .catch((e) => {
-            console.log(e)
+            callback(e, null)
         })
     }
     Login(email, password, callback) {
@@ -32,14 +32,14 @@ export default class UserRepository {
         })
         .then((res) => res.json())
         .then((json) => {
-            callback(json, '')
+            callback(json.error, json.result);
         })
         .catch((e) => {
-            callback({}, e)
+            callback(e, null)
         })
     }
 
-    Save(user, onSuccess, onError) {
+    Save(user, callback) {
         return fetch( SERVER_URL + 'users', {
             method: 'POST',
             headers: {
@@ -49,11 +49,10 @@ export default class UserRepository {
             body: JSON.stringify(user)
         })
         .then(() => {
-            onSuccess()
+            callback(json.error, json.result);
         })
         .catch((e) => {
-            alert(JSON.stringify(e));
-            onError(e);
+            callback(e, null)
         })
     }
 
@@ -70,7 +69,8 @@ export default class UserRepository {
         .then((json) => {
             callback(json.error, json.result);
         })
-        
-
+        .catch((e) => {
+            callback(e, null)
+        })
     }
 }

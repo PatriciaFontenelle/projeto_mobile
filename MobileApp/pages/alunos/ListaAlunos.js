@@ -17,7 +17,6 @@ const ListaAlunos = (props) => {
                 return;
             }
 
-            console.log(result[0])
             let data = [];
             for (let aluno of result) {
                 data.push(aluno)
@@ -29,7 +28,6 @@ const ListaAlunos = (props) => {
     }, [])
 
     const textChanged = (value) => {
-        console.log("Texto: " + value)
         if (value === '') {
             setLista(listaOriginal);
             return;

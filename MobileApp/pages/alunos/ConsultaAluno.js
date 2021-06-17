@@ -3,6 +3,7 @@ import { ScrollView, View, Text, StyleSheet, InteractionManager, Alert } from 'r
 import { Input, Button, Icon } from 'react-native-elements';
 import DatePicker from 'react-native-date-picker';
 import AlunoRepository from '../../database/aluno';
+import AlunoDisciplinaRepository from '../../database/notas';
 import { showToast, validarEmail } from '../../Funcs/funcs';
 
 const ConsultaAluno = (props) => {
@@ -34,15 +35,8 @@ const ConsultaAluno = (props) => {
         }
 
         if (nome === '' || sobrenome === '' || email === '' || dataNascimento === '' || aluno.id === '') {
-            Alert.alert(
-                "Erro!",
-                "Por favor, preencha todos os campos!",
-                [{
-                    text: 'Ok'
-                }]
-            )
-            
-            return
+            showToast('error', 'Erro', "Por favor, preencha todos os campos!");
+            return;
         }
 
         const data = {
@@ -86,28 +80,32 @@ const ConsultaAluno = (props) => {
     }
 
     const deleteStudent = () => {
+        const notaRepository = new AlunoDisciplinaRepository();
+        notaRepository.Delete(aluno._id, (error, result) => {
+            if (error) {
+                console.log(error);
+                return;
+            }
+        })
+
         const alunoRepository = new AlunoRepository();
         alunoRepository.Delete(aluno._id, (error, result) => {
-            console.log(!error)
-            console.log(error)
             if (error) {
                 console.log(error);
                 showToast("error", "Erro!", "O cadastro não foi excluído. Por favor, tente novamente.");
                 return;
             }
-            console.log('Testteee')
-            console.log(result)
 
             showToast(undefined, 'Sucesso!', `O cadastro do aluno ${nome} ${sobrenome} foi excluído.`);
             props.navigation.navigate("Home")
-        })
+        });
+        
     }
 
     
 
     const formatDate = (date) => {
         const splittedDate = date.split('/');
-        console.log(splittedDate[2] + '-' + splittedDate[1] + '-' + splittedDate[0])
 
         return new Date(splittedDate[2],(splittedDate[1] -1),splittedDate[0])
     }

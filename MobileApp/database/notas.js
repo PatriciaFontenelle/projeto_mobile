@@ -23,7 +23,7 @@ export default class AlunoDisciplinaRepository {
                 callback(json.error, json.result)
             })
             .catch((e) => {
-                callback({}, e)
+                callback(e, null)
             })
     }
 
@@ -43,72 +43,47 @@ export default class AlunoDisciplinaRepository {
                 callback(json.error, json.result)
             })
             .catch((e) => {
-                callback({}, e)
+                callback(e, null)
             })
     }
 
-    async RetrieveAll(callback) {
+    async Delete(nota, callback) {
         const token = await getToken();
-        return fetch(SERVER_URL + 'disciplina', {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                "Content-type": 'application/json',
-                "x-access-token": token
-            }
-        })
-            .then((res) => res.json())
-            .then((json) => {
-                callback(json.error, json.result)
-            })
-            .catch((e) => {
-                callback({}, e)
-            })
-    }
-
-    async Delete(discilplina, callback) {
-        const token = await getToken();
-        return fetch(SERVER_URL + 'disciplina', {
+        return fetch(SERVER_URL + 'nota', {
             method: 'DELETE',
             headers: {
                 Accept: 'application/json',
                 "Content-type": 'application/json',
                 "x-access-token": token,
-                "x-disciplina-id": discilplina
+                "x-id": nota
             }
         })
             .then((res) => res.json())
             .then((json) => {
-                console.log("Json");
-                console.log(json)
                 callback(json.error, json.result)
             })
             .catch((e) => {
-                console.log('Erroou!')
-                console.log(e)
-                callback({}, e)
+                callback(e, null)
             })
     }
 
-    async Update(disciplina, callback) {
+    async Update(nota, callback) {
         const token = await getToken();
-        return fetch(SERVER_URL + 'disciplinaUpdate', {
+        return fetch(SERVER_URL + 'notaUpdate', {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
                 "Content-type": 'application/json',
                 "x-access-token": token,
             },
-            body: JSON.stringify(disciplina)
+            body: JSON.stringify(nota)
         })
             .then((res) => res.json())
             .then((json) => {
-                console.log(json)
                 callback(json.error, json.result)
             })
             .catch((e) => {
-                console.log(e)
-                callback({}, e)
+                callback(e, null)
             })
     }
 }
