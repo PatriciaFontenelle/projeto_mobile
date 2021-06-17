@@ -1,6 +1,25 @@
-export default class UserTeste {
+import { SERVER_URL } from "../Funcs/Constants";
+
+export default class UserRepository {
+    Authenticate(token, callback) {
+        return fetch(SERVER_URL + 'auth', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-type': 'application/json',
+                'x-access-token': token
+            }
+        })
+        .then((res) => res.json())
+        .then((json) => {
+            callback(json.error, json.result);
+        })
+        .catch((e) => {
+            console.log(e)
+        })
+    }
     Login(email, password, callback) {
-        return fetch('http://10.0.2.2:8080/login', {
+        return fetch( SERVER_URL + 'login', {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -21,7 +40,7 @@ export default class UserTeste {
     }
 
     Save(user, onSuccess, onError) {
-        return fetch('http://10.0.2.2:8080/users', {
+        return fetch( SERVER_URL + 'users', {
             method: 'POST',
             headers: {
                 Accept: "application/json",
@@ -36,5 +55,22 @@ export default class UserTeste {
             alert(JSON.stringify(e));
             onError(e);
         })
+    }
+
+    EmailIsRegistered(email, callback) {
+        return fetch(SERVER_URL + 'users', {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-type': 'application/json',
+                'x-mail': email
+            }
+        })
+        .then((res) => res.json())
+        .then((json) => {
+            callback(json.error, json.result);
+        })
+        
+
     }
 }

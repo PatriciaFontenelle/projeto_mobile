@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, InteractionManager, Alert } from 'react-native';
 import { Input, Button, Icon } from 'react-native-elements';
 import DatePicker from 'react-native-date-picker';
-import { editar_disciplina, deletar_disciplina } from '../../database/DisciplinasDB';
+import { showToast } from '../../Funcs/funcs';
+import DisciplinaRepository from '../../database/disciplina';
 
 const ConsultaDisciplina = (props) => {
     const { disciplina } = props.route.params;
@@ -16,56 +17,28 @@ const ConsultaDisciplina = (props) => {
     const onSave = () => {
 
         if (nome === '' || professor === '') {
-            Alert.alert(
-                "Erro!",
-                "Por favor, preencha todos os campos!",
-                [{
-                    text: 'Ok'
-                }]
-            )
+            showToast('error', 'Erro!', 'Por favor, preencha todos os campos.')
 
             return
         }
 
         const data = {
-            nome: nome,
-            professor: professor,
-            id: disciplina.id,
+            name: nome,
+            teacher_name: professor,
+            _id: disciplina._id,
         }
 
-        const onError = (err) => {
-            console.log(err)
-            let message = "Ocorreu um erro e a alteração não foi feita. Por favor, tente novamente."
+        const disciplinaRepository = new DisciplinaRepository();
+        disciplinaRepository.Update(data, (error, result) => {
+            if (error) {
+                console.log(error);
+                showToast('error', 'Erro!', 'Não foi possível salvar as alterações. Por favor, tente novamente.');
+                return;
+            }
 
-            Alert.alert(
-                'Erro!',
-                message,
-                [
-                    {
-                        text: 'Ok',
-                    },
-                ],
-                { cancelable: false },
-            );
-        }
-
-        const onSuccess = (tx, results) => {
-            console.log(results)
-            Alert.alert(
-                'Sucesso!',
-                'Alteração salva!',
-                [
-                    {
-                        text: 'Ok',
-                        onPress: () => props.navigation.navigate('Home'),
-                    },
-                ],
-                { cancelable: false },
-            );
-        }
-
-
-        editar_disciplina(data, onSuccess, onError);
+            showToast(undefined, 'Sucesso!', 'As alterações foram salvas.');
+            props.navigation.navigate('Home');
+        })
     }
 
     const onDelete = () => {
@@ -79,41 +52,24 @@ const ConsultaDisciplina = (props) => {
                 },
                 {
                     text: 'Sim',
-                    onPress: () => {
-                        const onError = (e) => {
-                            Alert.alert(
-                                'Erro!',
-                                'Erro ao excluir cadastro. Por favor, tente novamente.',
-                                [
-                                    {
-                                        text: 'Ok',
-                                    },
-                                ],
-                                { cancelable: false },
-                            );
-                        }
-                        const onSuccess = (tx, results) => {
-                            console.log(results)
-                            Alert.alert(
-                                'Sucesso!',
-                                'Cadastro excluído!',
-                                [
-                                    {
-                                        text: 'Ok',
-                                        onPress: () => props.navigation.navigate('Home'),
-                                    },
-                                ],
-                                { cancelable: false },
-                            );
-                        }
-
-                        deletar_disciplina(disciplina.id, onSuccess, onError)
-                    }
+                    onPress: () => deletarDisciplina()
                 },
             ],
-
         )
+    }
 
+    const deletarDisciplina = () => {
+        const disciplinaRepository = new DisciplinaRepository();
+        disciplinaRepository.Delete(disciplina._id, (error, result) => {
+            if (error) {
+                console.log(error);
+                showToast('error', 'Erro!', 'Não foi possível excluir a disciplina. Por favor, tente novamente.');
+                return;
+            }
+
+            showToast(undefined, 'Sucesso!', 'Disciplina excluída.')
+            props.navigation.navigate('Home');
+        })
     }
 
     return (

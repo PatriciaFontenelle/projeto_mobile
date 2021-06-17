@@ -2,8 +2,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import { ScrollView, View, Text, StyleSheet, InteractionManager, Alert } from 'react-native';
 import { Input, Button, BottomSheet, ListItem, Icon } from 'react-native-elements'
-import { editar_nota, lancar_nota, consultar_nota } from '../../database/AlunoDisciplinaDB';
-import { listar_disciplinas } from '../../database/DisciplinasDB';
+import DisciplinaRepository from '../../database/disciplina';
+import AlunoDisciplinaRepository from '../../database/notas';
+import { showToast } from '../../Funcs/funcs';
 
 const LancarNota = (props) => {
     const { aluno } = props.route.params;
@@ -22,21 +23,17 @@ const LancarNota = (props) => {
     const [tipoQuery, setTipoQuery] = useState('')
 
     useEffect(() => {
-        const onSuccess = (tx, results) => {
-            let disciplinas = [];
-            const rows = results.rows;
-            for (let i = 0; i < rows.length; i++){
-                disciplinas.push(rows.item(i))
+        const disciplinaRepository = new DisciplinaRepository();
+        disciplinaRepository.RetrieveAll((error, result) => {
+            if (error) {
+                console.log(error);
             }
 
-            setDisciplinas(disciplinas);
-        }
+            console.log(result)
+            result.sort((a, b) => a.name > b.name ? 1 : -1);
+            setDisciplinas(result);
+        })
 
-        const onError = (e) => {
-            console.log(e)
-        }
-
-        listar_disciplinas(onSuccess, onError)
     }, [])
     
     useEffect(() => {
@@ -58,72 +55,85 @@ const LancarNota = (props) => {
 
     const onSelectDisciplina = (d) => {
         const notaInicial = 0;
-        const onSuccess = (tx, result) => {
-            console.log('Resultado: ' + result.rows.length)
-            if (result.rows.length > 0) {
-                const item = result.rows.item(0)
-                console.log(item)
-                setTipoQuery('Update')
-                setAv1(item.av1.toFixed(2))
-                setAv2(item.av2.toFixed(2))
-                setAv3(item.av3.toFixed(2))
-                setEditar(false)
-            } else {
-                setAv1(notaInicial.toFixed(2))
-                setAv2(notaInicial.toFixed(2))
-                setAv3(notaInicial.toFixed(2))
-                setEditar(true)
-                setTipoQuery('Insert')
+
+        const data = {
+            aluno: aluno._id,
+            disciplina: disciplina._id
+        }
+
+        const alunoDisciplinaRepository = new AlunoDisciplinaRepository();
+        alunoDisciplinaRepository.getNota(data, (error, result) => {
+            if (error) {
+                console.log(error);
+                setEditar(true);
+                return;
             }
-        }
+            if (result.length === 0) {
+                console.log('Testeeevxsdhgvchg')
+            }
 
-        const onError = (e) => {
-            console.log(e);
-        }
+            if (result) {
+                setTipoQuery('Update');
+                setEditar(false);
+                setAv1(result.av1);
+                setAv2(result.av2);
+                setAv3(result.av3);
+            } else {
+                setTipoQuery('Insert');
+                setEditar(true);
+                setAv1(notaInicial);
+                setAv2(notaInicial);
+                setAv3(notaInicial);
+            }
+        })
 
-        consultar_nota(aluno.id, d.id, onSuccess, onError);
         setDisciplina(d);
         setIsVisible(false);
     }
 
     const onSave = () => {
         const data = {
-            aluno_id: aluno.id,
-            disciplina_id: disciplina.id,
+            aluno_id: aluno._id,
+            disciplina_id: disciplina._id,
             av1: av1,
             av2: av2,
             av3: av3
         }
 
-        const onSuccess = (tx, result) => {
-            Alert.alert(
-                'Sucesso!',
-                'A nota foi lançada com sucesso!',
-                [
-                    {
-                        text: 'Ok',
-                        onPress:(() => props.navigation.navigate('Home'))
-                    }
-                ]
-            )
-        }
+        const alunoDisciplinaRepository = new AlunoDisciplinaRepository();
+        alunoDisciplinaRepository.Cadastrar(data, (error, result) => {
+            if (error) {
+                console.log(error);
+                showToast('error', 'Erro!', 'Não foi possível lançar a nota. Por favor, tente novamente.');
+                return;
+            }
 
-        const onError = (e) => {
-            Alert.alert(
-                'Erro!',
-                'A nota não foi lançada. Por favor, tente novamente.',
-                [
-                    {
-                        text: 'Ok'
-                    }
-                ]
-            )
-        }
+            showToast(undefined, 'Sucesso!', 'As notas foram lançadas.');
+            props.navigation.navigate('Home');
+        })
 
         if (tipoQuery === 'Insert') {
             lancar_nota(data, onSuccess, onError)
         } else if (tipoQuery === 'Update') {
             editar_nota(data, onSuccess, onError)
+        }
+    }
+
+    const getDisciplinas = () => {
+        console.log(!disciplinas || disciplinas.length === 0)
+        if (!disciplinas || disciplinas.length === 0) {
+            Alert.alert(
+                'Erro!',
+                'Não existe nenhuma disciplina cadastrada. Por favor, faça um cadastro para prosseguir.',
+                [
+                    {
+                        text: 'Ok',
+                        onPress: () => props.navigation.navigate('Home')
+                    }
+                ]
+            )
+        } else {
+            setIsVisible(true);
         }
     }
     
@@ -137,7 +147,7 @@ const LancarNota = (props) => {
             <Input
                 label="Disciplina"
                 disabled={true}
-                rightIcon={{ type: 'font-awesome', name: 'search', onPress: () => setIsVisible(true) }}
+                rightIcon={{ type: 'font-awesome', name: 'search', onPress: () => getDisciplinas() }}
                 value={disciplina.name}
             />
             <Input
@@ -172,7 +182,7 @@ const LancarNota = (props) => {
                 containerStyle={{ backgroundColor: 'rgba(0.5, 0.25, 0, 0.2)' }}
             >
                 {disciplinas.map((d) => (
-                    <ListItem key={d.id} onPress={() => onSelectDisciplina(d)}>
+                    <ListItem key={d._id} onPress={() => onSelectDisciplina(d)}>
                         <ListItem.Content>
                             <ListItem.Title>{d.name}</ListItem.Title>
                             <ListItem.Subtitle>{d.teacher_name}</ListItem.Subtitle>

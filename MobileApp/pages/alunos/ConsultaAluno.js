@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, InteractionManager, Alert } from 'react-native';
 import { Input, Button, Icon } from 'react-native-elements';
 import DatePicker from 'react-native-date-picker';
-import { editar_aluno, deletar_aluno } from '../../database/AlunosDB';
+import AlunoRepository from '../../database/aluno';
+import { showToast, validarEmail } from '../../Funcs/funcs';
 
 const ConsultaAluno = (props) => {
     const { aluno } = props.route.params;
@@ -13,9 +14,24 @@ const ConsultaAluno = (props) => {
     const [nome, setNome] = useState(aluno.name);
     const [sobrenome, setSobrenome] = useState(aluno.last_name);
     const [email, setEmail] = useState(aluno.email);
+    const [erroEmail, setErroEmail] = useState('');
     const [dataNascimento, setDataNascimento] = useState(aluno.birth_date);
 
+    const conferirEmail = (email) => {
+        setEmail(email);
+        if (!validarEmail(email)) {
+            setErroEmail('E-mail inválido.');
+            return;
+        }
+        setErroEmail('');
+    }
+
     const onSave = () => {
+
+        if (erroEmail !== '') {
+            showToast('error', 'Erro', 'Por favor, verifique o e-mail digitado.');
+            return;
+        }
 
         if (nome === '' || sobrenome === '' || email === '' || dataNascimento === '' || aluno.id === '') {
             Alert.alert(
@@ -30,46 +46,24 @@ const ConsultaAluno = (props) => {
         }
 
         const data = {
-            nome: nome,
-            sobrenome: sobrenome,
-            matricula: aluno.id,
+            name: nome,
+            last_name: sobrenome,
+            _id: aluno._id,
             email: email,
-            dataNascimento: dataNascimento
+            birth_date: dataNascimento
         }
+        
+        const alunoRepository = new AlunoRepository();
+        alunoRepository.Update(data, (error, result) => {
+            if (error) {
+                console.log(error);
+                showToast('error', 'Erro!', 'As alterações não foram salvas. Por favor, tente novamente.');
+                return;
+            }
 
-        const onError = (err) => {
-            console.log(err)
-            let message = "Ocorreu um erro e a alteração não foi feita. Por favor, tente novamente."
-
-            Alert.alert(
-                'Erro!',
-                message,
-                [
-                    {
-                        text: 'Ok',
-                    },
-                ],
-                { cancelable: false },
-            );
-        }
-
-        const onSuccess = (tx, results) => {
-            console.log(results)
-            Alert.alert(
-                'Sucesso!',
-                'Alteração salva!',
-                [
-                    {
-                        text: 'Ok',
-                        onPress: () => props.navigation.navigate('Home'),
-                    },
-                ],
-                { cancelable: false },
-            );
-        }
-
-
-        editar_aluno(data, onSuccess, onError);
+            showToast(undefined, 'Sucesso!', 'As alterações foram salvas.')
+            props.navigation.navigate('Home');
+        })
     }
 
     const onDelete = () => {
@@ -83,41 +77,30 @@ const ConsultaAluno = (props) => {
                 },
                 {
                     text: 'Sim',
-                    onPress: () => {
-                        const onError = (e) => {
-                            Alert.alert(
-                                'Erro!',
-                                'Erro ao excluir cadastro. Por favor, tente novamente.',
-                                [
-                                    {
-                                        text: 'Ok',
-                                    },
-                                ],
-                                { cancelable: false },
-                            );
-                        }
-                        const onSuccess = (tx, results) => {
-                            console.log(results)
-                            Alert.alert(
-                                'Sucesso!',
-                                'Cadastro excluído!',
-                                [
-                                    {
-                                        text: 'Ok',
-                                        onPress: () => props.navigation.navigate('Home'),
-                                    },
-                                ],
-                                { cancelable: false },
-                            );
-                        }
-
-                        deletar_aluno(aluno.id, onSuccess, onError)
-                    }
-                },
+                    onPress: () => deleteStudent()
+                }
             ],
 
         )
         
+    }
+
+    const deleteStudent = () => {
+        const alunoRepository = new AlunoRepository();
+        alunoRepository.Delete(aluno._id, (error, result) => {
+            console.log(!error)
+            console.log(error)
+            if (error) {
+                console.log(error);
+                showToast("error", "Erro!", "O cadastro não foi excluído. Por favor, tente novamente.");
+                return;
+            }
+            console.log('Testteee')
+            console.log(result)
+
+            showToast(undefined, 'Sucesso!', `O cadastro do aluno ${nome} ${sobrenome} foi excluído.`);
+            props.navigation.navigate("Home")
+        })
     }
 
     
@@ -133,7 +116,7 @@ const ConsultaAluno = (props) => {
         <ScrollView style={styles.container}>
             <Input
                 label="Matrícula"
-                value={aluno.id}
+                value={aluno._id}
                 disabled={true}
             />
             <Input
@@ -152,7 +135,9 @@ const ConsultaAluno = (props) => {
                 label="Email"
                 value={email}
                 disabled={!editar}
-                onChangeText={value => setEmail(value)}
+                errorMessage={erroEmail}
+                errorStyle={{color: 'red'}}
+                onChangeText={value => conferirEmail(value)}
             />
             
             

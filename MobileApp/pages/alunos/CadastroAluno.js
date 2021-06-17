@@ -2,19 +2,27 @@ import React, {useState} from 'react';
 import { ScrollView, Text, StyleSheet, Alert } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 import DatePicker from 'react-native-date-picker';
-import { cadastrar_aluno } from '../../database/AlunosDB';
-import { create } from 'react-test-renderer';
+import AlunoRepository from '../../database/aluno';
+import { showToast, validarEmail } from '../../Funcs/funcs';
 
 const CadastroAluno = ({navigation}) => {
     const [nome, setNome] = useState('');
     const [sobrenome, setSobrenome] = useState('');
     const [matricula, setMatricula] = useState('');
     const [email, setEmail] = useState('');
+    const [erroEmail, setErroEmail] = useState('');
     const [dataNascimento, setDataNascimento] = useState(new Date());
 
+    const conferirEmail = (email) => {
+        if (!validarEmail(email)) {
+            setErroEmail("E-mail inválido!");
+            return;
+        }
+        setErroEmail('');
+        setEmail(email);
+    }
     
-    function onSave() {
-
+    const onSave = () => {
         if (nome === '' || sobrenome === '' || email === '' || dataNascimento === '' || matricula === '') {
             Alert.alert(
                 "Erro!",
@@ -27,52 +35,48 @@ const CadastroAluno = ({navigation}) => {
             return
         }
 
+        if (erroEmail !== '') {
+            showToast('error', 'Erro!', 'Por favor, verifique o e-mail digitado.');
+            return;
+        }
+
         const dataNascimentoFormatted = dataNascimento.getDate() + '/' + (dataNascimento.getMonth() + 1) + '/' + dataNascimento.getFullYear();
 
         const data = {
-            nome: nome,
-            sobrenome: sobrenome,
-            matricula: matricula,
+            name: nome,
+            last_name: sobrenome,
+            _id: matricula,
             email: email,
-            dataNascimento: dataNascimentoFormatted
+            birth_date: dataNascimentoFormatted
         }
 
-        const onError = (err) => {
+        const alunoRepository = new AlunoRepository();
+
+        alunoRepository.Cadastrar(data, (err, result) => {
+            console.log('dnsjadnsajkd');
             console.log(err)
-            let message = "Ocorreu um erro e o cadastro não foi feito. Por favor, tente novamente."
-            if (err.message === "UNIQUE constraint failed: aluno.id (code 1555 SQLITE_CONSTRAINT_PRIMARYKEY)") {
-                message = 'Erro: essa matrícula já está sendo utilizada por outro aluno.';
+            if (err) {
+                let message = "Ocorreu um erro e o cadastro não foi feito. Por favor, tente novamente."
+                
+                if (err.code === 11000) {
+                    showToast("error", "Erro!", "Essa matrícula já está sendo usada por outro aluno.");
+                    return;
+                }
+
+                Alert.alert(
+                    'ERRO',
+                    message,
+                    [
+                        {
+                            text: 'Ok',
+                        },
+                    ],
+                    { cancelable: false },
+                );
             }
-
-            Alert.alert(
-                'ERRO',
-                message,
-                [
-                    {
-                        text: 'Ok',
-                    },
-                ],
-                { cancelable: false },
-            );
-        }
-
-        const onSuccess = (tx, results) => {
-            console.log(results)
-            Alert.alert(
-                'SUCESSO',
-                'Aluno cadastrado!',
-                [
-                    {
-                        text: 'Ok',
-                        onPress: () => navigation.navigate('Home'),
-                    },
-                ],
-                { cancelable: false },
-            );
-        }
-
-
-        cadastrar_aluno(data, onSuccess, onError);
+            showToast(undefined, 'Sucesso!', 'O aluno foi cadastrado.');
+            navigation.navigate('Home');
+        })
     }
 
     return (    
@@ -91,7 +95,9 @@ const CadastroAluno = ({navigation}) => {
             />
             <Input
                 label="E-mail"
-                onChangeText={(value) => setEmail(value)}
+                errorMessage={erroEmail}
+                errorStyle={{color: 'red'}}
+                onChangeText={(value) => conferirEmail(value)}
             />
             <Text style={styles.dataNascimento}>Data de Nascimento: </Text>
             <DatePicker
