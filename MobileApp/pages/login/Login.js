@@ -61,7 +61,6 @@ export default class App extends React.Component {
                 return;
             }
 
-
             if(!result.auth) {
                 showToast('error', 'Erro', 'Usuário ou senha incorretos' );
                 return;

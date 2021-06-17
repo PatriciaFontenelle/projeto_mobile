@@ -32,7 +32,7 @@ export default class UserRepository {
         })
         .then((res) => res.json())
         .then((json) => {
-            callback(json.error, json.result);
+            callback(null, json)
         })
         .catch((e) => {
             callback(e, null)
@@ -48,8 +48,9 @@ export default class UserRepository {
             },
             body: JSON.stringify(user)
         })
-        .then(() => {
-            callback(json.error, json.result);
+        .then((res) => res.json())
+        .then((json) => {
+            callback(json.error, json.result)
         })
         .catch((e) => {
             callback(e, null)
@@ -69,8 +70,7 @@ export default class UserRepository {
         .then((json) => {
             callback(json.error, json.result);
         })
-        .catch((e) => {
-            callback(e, null)
-        })
+        
+
     }
 }
