@@ -10,6 +10,7 @@ export default class UserRepository {
     }
 
     Save(user, callback) {
-        this.userCollection.insert(user, callback);
+        this.userCollection.insertOne(user, callback);
     }
+
 }

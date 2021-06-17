@@ -26,7 +26,6 @@ export function getAlunoCollection(callback) {
         if(error) {
             throw error;
         }
-
         const database = client.db(DATABASE_NAME);
         collection = database.collection(COLLECTION_ALUNO);
         callback(collection);

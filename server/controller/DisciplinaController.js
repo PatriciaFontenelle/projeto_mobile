@@ -1,7 +1,7 @@
 import SECRET from "../infra/Secret.js";
 import jwt from "jsonwebtoken";
 
-export default class AlunoController {
+export default class DisciplinaController {
     Authenticate(req, callback) {
         const token = req.headers["x-access-token"];
         
@@ -32,16 +32,15 @@ export default class AlunoController {
         })
     }
 
-    Init(server, repository) {
-        //CADASTRAR UM ALUNO
-        server.post('/aluno', (req, res) => {
-            console.log('dsidhiubxhuhsfbuiaxheiueahfiuabhfiuo')
+    Init(server, repository){
+        //CADASTRAR UMA DISCIPLINA
+        server.post('/disciplina', (req, res) => {
             this.Authenticate(req, (authResult) => {
                 console.log(authResult)
                 if(!authResult.auth) {
                     return res.status(401).send({ error: authResult.message, result: null })
                 }
-                repository.Save(req.body.aluno, (error, result) => {
+                repository.Save(req.body, (error, result) => {
                     if(error) {
                         console.log(error)
                         return res.status(500).send({error: error, result: null});
@@ -52,8 +51,8 @@ export default class AlunoController {
             
         })
 
-        //CARREGAR TODOS OS ALUNOS
-        server.get('/aluno', (req, res) => {
+        //CARREGAR TODOS AS DISCIPLINAS
+        server.get('/disciplina', (req, res) => {
             this.Authenticate(req, (authResult) => {
                 if(!authResult.auth) {
                     return res.status(401).send({ error: authResult.message, result: null })
@@ -68,17 +67,17 @@ export default class AlunoController {
             })
         })
 
-        //EXCLUIR ALUNO
-        server.delete('/aluno', (req, res) => {
+        //EXCLUIR DISCIPLINA
+        server.delete('/disciplina', (req, res) => {
             this.Authenticate(req, (authResult) => {
                 console.log(authResult)
                 if(!authResult.auth){
                     return res.status(401).send({ error: authResult.message, result: null })
                 }
             })
-            repository.Delete(req.headers["x-student-id"], (error, result) => {
+            console.log(req.headers)
+            repository.Delete(req.headers["x-disciplina-id"], (error, result) => {
                 if(error) {
-                    console.log('deu ruiiiim')
                     console.log(error)
                     return res.status(500).send({error: error, result: null});
                 }
@@ -88,22 +87,14 @@ export default class AlunoController {
             })
         })
 
-        //EDITAR CADASTRO ALUNO
-        server.post('/alunoUpdate', (req, res) => {
-            console.log("Testeee2")
+        //EDITAR CADASTRO DISCIPLINA
+        server.post('/disciplinaUpdate', (req, res) => {
             this.Authenticate(req, (authResult) => {
-                console.log("Testeeee1")
                 if(!authResult.auth){
                     return res.status(401).send({ error: authResult.message, result: null })
                 }
             })
-            console.log("Testeeee3")
-            console.log(req.body.name)
-            console.log(req.body.last_name)
-            console.log(req.body._id)
-            console.log(req.body.email)
             repository.Update(req.body, (error, result) => {
-                console.log('req.')
                 if(error) {
                     console.log(error)
                     return res.status(500).send({error: error, result: null});
@@ -111,5 +102,6 @@ export default class AlunoController {
                 return res.status(201).send({ error: null, result})
             })
         })
+
     }
 }
