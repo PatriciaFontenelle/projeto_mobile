@@ -11,25 +11,25 @@ export default class AlunoDisciplinaRepository {
     }
 
     Get(data, callback) {
-        console.log("Aluno");
-        console.log(data.aluno);
         this.alunoDisciplinaCollection.findOne({
             aluno_id: data.aluno,
             disciplina_id: data.disciplina
         },callback);
     }
 
-    Delete(alunoDisciplina, callback) {
-        const id = new Mongo.ObjectId(alunoDisciplina);
-        this.alunoDisciplinaCollection.deleteOne({_id: id}, callback)
+    Delete(id, callback) {
+        this.alunoDisciplinaCollection.deleteOne({ $or: [{"aluno_id": id}, {"disciplina_id": id} ]}, callback)
     }
 
     Update(alunoDisciplina, callback) {
         const id = new Mongo.ObjectId(alunoDisciplina._id);
         this.alunoDisciplinaCollection.updateOne({_id: id},
         [{$set: {
-            "name": alunoDisciplina.name,
-            "teacher_name": alunoDisciplina.teacher_name,
+            "aluno_id": alunoDisciplina.aluno_id,
+            "disciplina_id": alunoDisciplina.disciplina_id,
+            "av1": alunoDisciplina.av1,
+            "av2": alunoDisciplina.av2,
+            "av3": alunoDisciplina.av3
         }}], callback)
     }
 }

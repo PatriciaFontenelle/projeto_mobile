@@ -14,15 +14,9 @@ export default class UserController {
                     message: "Nenhum token informado!"
                 });
             }
-    
-            console.log('Token');
-            console.log(token)
-    
+
             jwt.verify(token, SECRET, function (err, decoded) {
                 if(err) {
-                    console.log("Deu ruim");
-                    console.log(err)
-                    
                     return res.status(401).send({
                         auth: false, 
                         message: "Token inválido!"
@@ -33,29 +27,17 @@ export default class UserController {
             })
         })
         server.post("/login", (req, res) => {
-            console.log("hdeuhdeuhdude");
-            console.log(req.body.email);
-            console.log("req");
-            console.log(req.body)
             repository.FindByEmail(req.body.email, (error, user) => {
                 if(error) {
-                    console.log('Erro 1:' + error);
                     return res.status(500).send({});
                 }
-                
-                console.log(user)
-
+       
                 if(!user) {
-                    console.log('Erro 2')
                     return res.status(401).send({ auth: false, token: null })
                 }
-                console.log(user.password);
-                console.log(req.body.password)
                 const passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
-                console.log(passwordIsValid)
 
                 if(!passwordIsValid) {
-                    console.log('Erro 2')
                     return res.status(401).send({ auth: false, token: null })
                 }
 
@@ -63,13 +45,11 @@ export default class UserController {
                     expiresIn: 86400,
                 })
 
-                console.log(user)
                 res.status(200).send({ auth: true, token: token })
             });
         });
 
         server.post("/users", (req, res) => {
-            console.log('lllllllll')
             const user = req.body;
 
             const newPassword = bcrypt.hashSync(user.password, 10);
@@ -77,10 +57,7 @@ export default class UserController {
             user.password = newPassword;
 
             repository.Save(user, (error, result) => {
-                console.log('User');
-                console.log(user)
                 if(error) {
-                    console.log(error);
                     return res.status(500).send({error});
                 }
                 return res.status(201).send({result})
@@ -88,17 +65,11 @@ export default class UserController {
         });
 
         server.get("/users", (req, res) => {
-            console.log('jnjnjnjknjknnj')
             const email = req.headers['x-mail'];
-            console.log('Email: ');
-            console.log(email)
             repository.FindByEmail(email, (error, result)=> {
                 if(error) {
-                    console.log(error);
                     return res.status(500).send({error: error, result: null})
                 }
-                console.log('Teste');
-                console.log(result);
                 return res.status(201).send({ error: null, result})
             })
         })

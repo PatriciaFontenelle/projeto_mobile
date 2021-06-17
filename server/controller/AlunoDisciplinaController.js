@@ -12,13 +12,8 @@ export default class AlunoDisciplinaController {
             });
         }
 
-        console.log('Token');
-        console.log(token)
-
         jwt.verify(token, SECRET, function (err, decoded) {
             if(err) {
-                console.log("Deu ruim");
-                console.log(err)
                 return callback({
                     auth: false,
                     message: "Token inválido!"
@@ -36,13 +31,11 @@ export default class AlunoDisciplinaController {
         //CADASTRAR UMA NOTA
         server.post('/nota', (req, res) => {
             this.Authenticate(req, (authResult) => {
-                console.log(authResult)
                 if(!authResult.auth) {
                     return res.status(401).send({ error: authResult.message, result: null })
                 }
                 repository.Save(req.body, (error, result) => {
                     if(error) {
-                        console.log(error)
                         return res.status(500).send({error: error, result: null});
                     }
                     return res.status(201).send({error: null, result: result})
@@ -60,35 +53,29 @@ export default class AlunoDisciplinaController {
             })
             repository.Get(JSON.parse(req.headers["x-data"]), (error, result) => {
                 if(error) {
-                    console.log(error)
                     return res.status(500).send({error: error, result: null});
                 }
                 return res.status(201).send({ error: null, result})
             })
         })
 
-        //EXCLUIR DISCIPLINA
-        server.delete('/disciplina', (req, res) => {
+        //EXCLUIR NOTA
+        server.delete('/nota', (req, res) => {
             this.Authenticate(req, (authResult) => {
-                console.log(authResult)
                 if(!authResult.auth){
                     return res.status(401).send({ error: authResult.message, result: null })
                 }
             })
-            console.log(req.headers)
-            repository.Delete(req.headers["x-disciplina-id"], (error, result) => {
+            repository.Delete(req.headers["x-id"], (error, result) => {
                 if(error) {
-                    console.log(error)
                     return res.status(500).send({error: error, result: null});
                 }
-                console.log("Result")
-                console.log(result)
                 return res.status(201).send({ error: null, result})
             })
         })
 
-        //EDITAR CADASTRO DISCIPLINA
-        server.post('/disciplinaUpdate', (req, res) => {
+        //EDITAR CADASTRO NOTA
+        server.post('/notaUpdate', (req, res) => {
             this.Authenticate(req, (authResult) => {
                 if(!authResult.auth){
                     return res.status(401).send({ error: authResult.message, result: null })
@@ -96,7 +83,6 @@ export default class AlunoDisciplinaController {
             })
             repository.Update(req.body, (error, result) => {
                 if(error) {
-                    console.log(error)
                     return res.status(500).send({error: error, result: null});
                 }
                 return res.status(201).send({ error: null, result})

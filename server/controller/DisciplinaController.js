@@ -12,13 +12,8 @@ export default class DisciplinaController {
             });
         }
 
-        console.log('Token');
-        console.log(token)
-
         jwt.verify(token, SECRET, function (err, decoded) {
             if(err) {
-                console.log("Deu ruim");
-                console.log(err)
                 return callback({
                     auth: false,
                     message: "Token inválido!"
@@ -36,13 +31,11 @@ export default class DisciplinaController {
         //CADASTRAR UMA DISCIPLINA
         server.post('/disciplina', (req, res) => {
             this.Authenticate(req, (authResult) => {
-                console.log(authResult)
                 if(!authResult.auth) {
                     return res.status(401).send({ error: authResult.message, result: null })
                 }
                 repository.Save(req.body, (error, result) => {
                     if(error) {
-                        console.log(error)
                         return res.status(500).send({error: error, result: null});
                     }
                     return res.status(201).send({error: null, result: result})
@@ -60,7 +53,6 @@ export default class DisciplinaController {
             })
             repository.GetAll((error, result) => {
                 if(error) {
-                    console.log(error)
                     return res.status(500).send({error: error, result: null});
                 }
                 return res.status(201).send({ error: null, result})
@@ -70,19 +62,14 @@ export default class DisciplinaController {
         //EXCLUIR DISCIPLINA
         server.delete('/disciplina', (req, res) => {
             this.Authenticate(req, (authResult) => {
-                console.log(authResult)
                 if(!authResult.auth){
                     return res.status(401).send({ error: authResult.message, result: null })
                 }
             })
-            console.log(req.headers)
             repository.Delete(req.headers["x-disciplina-id"], (error, result) => {
                 if(error) {
-                    console.log(error)
                     return res.status(500).send({error: error, result: null});
                 }
-                console.log("Result")
-                console.log(result)
                 return res.status(201).send({ error: null, result})
             })
         })
@@ -96,7 +83,6 @@ export default class DisciplinaController {
             })
             repository.Update(req.body, (error, result) => {
                 if(error) {
-                    console.log(error)
                     return res.status(500).send({error: error, result: null});
                 }
                 return res.status(201).send({ error: null, result})
