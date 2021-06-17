@@ -2,13 +2,13 @@ import color from 'color';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { ListItem, Input, Button, Icon } from 'react-native-elements';
-import { listar_disciplinas } from '../../database/DisciplinasDB';
+import DisciplinaRepository from '../../database/disciplina';
+import { showToast } from '../../Funcs/funcs';
 
 const ListaDisciplinas = (props) => {
     const [lista, setLista] = useState([]);
     const [listaOriginal, setListaOriginal] = useState([]);
 
-    
 
     useEffect(() => {
         const onSuccess = (tx, results) => {
@@ -26,7 +26,18 @@ const ListaDisciplinas = (props) => {
             console.log('Erro: ' + e)
         }
 
-        listar_disciplinas(onSuccess, onError);
+        const disciplinaRepository = new DisciplinaRepository();
+
+        disciplinaRepository.RetrieveAll((error, result) => {
+            if (error) {
+                console.log(error);
+            }
+
+            console.log(result)
+            result.sort((a, b) => a.name > b.name ? 1 : -1);
+            setLista(result);
+            setListaOriginal(result)
+        })
     }, [])
 
     const textChanged = (value) => {
@@ -62,7 +73,7 @@ const ListaDisciplinas = (props) => {
             </View>
 
             {lista.map((disciplina) => (
-                <ListItem key={disciplina.id} bottomDivider onPress={() => props.navigation.navigate('ConsultaDisciplina', { disciplina: disciplina })}>
+                <ListItem key={disciplina._id} bottomDivider onPress={() => props.navigation.navigate('ConsultaDisciplina', { disciplina: disciplina })}>
                     <ListItem.Content>
                         <ListItem.Title>{disciplina.name}</ListItem.Title>
                         <ListItem.Subtitle>{disciplina.teacher_name}</ListItem.Subtitle>

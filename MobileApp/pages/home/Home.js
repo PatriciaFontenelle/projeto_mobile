@@ -12,6 +12,13 @@ const Home = ({navigation}) => {
         console.log('token resgatado: ' + token);
     }, [])
 
+    const logOut = async() => {
+        await SecureStore.deleteItemAsync('token');
+        const token = await SecureStore.getItemAsync('token');
+        console.log('token resgatado (saiu): ' + token);
+        navigation.navigate('Login');
+    }
+
     return (
         <View style={styles.container}>
             <View>
@@ -24,7 +31,7 @@ const Home = ({navigation}) => {
                 <Button title="ALUNOS" onPress={() => navigation.navigate('ListaAlunos', { nextScreen: 'ConsultaAluno' })}/>
                 <Button title="DISCIPLINAS" onPress={() => navigation.navigate('ListaDisciplinas')} />
                 <Button title="NOTAS" onPress={() => navigation.navigate('ListaAlunos', { nextScreen: 'LancarNota'})} />
-                <Button buttonStyle={styles.btnSair} title="SAIR" onPress={() => navigation.navigate('Login')} />
+                <Button buttonStyle={styles.btnSair} title="SAIR" onPress={() => logOut()} />
             </View>
         </View>
     )

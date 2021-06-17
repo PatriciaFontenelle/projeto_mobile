@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { Input, Icon, Button } from 'react-native-elements';
-import Toast from 'react-native-toast-message';
 import UserTeste from '../../database/user';
+import {showToast, validarEmail} from '../../Funcs/funcs';
 
 const CadastroUsuario = ({navigation}) => {
     const [nome, setNome] = useState('');
@@ -15,17 +15,6 @@ const CadastroUsuario = ({navigation}) => {
     const [confirmaSenha, setConfirmaSenha] = useState('');
     const [erroConfirmaSenha, setErroConfirmaSenha] = useState('');
 
-    const showToast = (message, title="", type="success", duration=3000, position="bottom") => {
-        Toast.show({
-            type: type,
-            position: position,
-            text1: title,
-            text2: message,
-            visibilityTime: duration,
-            autoHide: true
-        })
-    }
-
     const validarSenha = (senha) => {
         if(senha.length < 6) {
             setErroSenha("A senha deve conter no mínimo 6 caracteres.");
@@ -36,9 +25,8 @@ const CadastroUsuario = ({navigation}) => {
         setSenha(senha);
     }
     
-    const validarEmail = (email) => {
-        const r = /^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$/i;
-        if(!r.test(email)){
+    const conferirEmail = (email) => {
+        if(!validarEmail(email)){
             setErroEmail("E-mail inválido. Por favor, verifique.");
             return
         }
@@ -58,11 +46,19 @@ const CadastroUsuario = ({navigation}) => {
     const salvar = () => {
         console.log('Salvar')
         if(erroSenha !== '' || erroConfirmaSenha !== '' || erroEmail !== '') {
-            showToast('Por favor, verifique se todos os campos estão corretos.', 'Erro', 'error');
+            showToast({
+                message: 'Por favor, verifique se todos os campos estão corretos.',
+                title: 'Erro',
+                type: 'error'
+            });
             return;
         }
         if(nome === '' || sobrenome === '' || email === '' || senha === '' || confirmaSenha === '') {
-            showToast('Todos os campos devem ser preenchidos!', 'Erro', 'error')
+            showToast({
+                message: 'Todos os campos devem ser preenchidos!',
+                title: 'Erro',
+                type: 'error'
+            })
             return;
         }
 
@@ -73,17 +69,28 @@ const CadastroUsuario = ({navigation}) => {
             password: senha
         }
 
-        console.log('1');
         const userTeste = new UserTeste();
-        console.log('2');
-        userTeste.Save(user, (result, error) => {
-            if(error) {
-                console.log(error);
-                return;
-            }
-
+        userTeste.EmailIsRegistered(email, (error, result) => {
+            console.log('Teste')
+            console.log(error);
             console.log(result)
+            if (result) {
+                showToast('error', 'Erro', 'O e-mail informado já está sendo utilizado por outro usuário!')
+                return;
+            } else {
+                userTeste.Save(user, (error, result) => {
+                    if (error) {
+                        console.log(error);
+                        return;
+                    }
+
+
+
+                    console.log(result)
+                })
+            }
         })
+        
         
         
     }
@@ -99,7 +106,7 @@ const CadastroUsuario = ({navigation}) => {
             />
             <Input 
                 label="E-mail"
-                onChangeText={(value) => validarEmail(value)}
+                onChangeText={(value) => conferirEmail(value)}
                 errorMessage={erroEmail}
                 errorStyle={{ color: 'red' }}
             />

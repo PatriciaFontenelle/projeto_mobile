@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { Input, Button } from 'react-native-elements';
-import { cadastrar_disciplina } from '../../database/DisciplinasDB';
+import DisciplinaRepository from '../../database/disciplina';
+import { showToast } from '../../Funcs/funcs';
 
 const CadastroDisciplina = ({navigation}) => {
     const [nome, setNome] = useState('');
@@ -9,55 +10,28 @@ const CadastroDisciplina = ({navigation}) => {
 
     const onSave = () => {
         if (nome == '' || professor == '') {
-            Alert.alert(
-                'Erro!',
-                'Por favor, preencha todos os campos.',
-                [
-                    {
-                        text: 'Ok'
-                    }
-                ]
-            )
+            showToast('error', 'Erro!', 'Por favor, preencha todos os campos.')
 
             return;
         }
         const data = {
-            nome,
-            professor
+            name: nome,
+            teacher_name: professor
         }
 
-        const onError = (err) => {
-            console.log(err)
-            let message = "Ocorreu um erro e o cadastro não foi feito. Por favor, tente novamente."
+        const disciplinaRepository = new DisciplinaRepository();
+        disciplinaRepository.Cadastrar(data, (error, result) => {
+            if (error) {
+                console.log(error)
+                showToast('error', 'Erro!', 'Não foi possível cadastrar a discilplina. Por favor, tente novamente.');
+                return;
+            }
 
-            Alert.alert(
-                'Erro!',
-                message,
-                [
-                    {
-                        text: 'Ok',
-                    },
-                ],
-                { cancelable: false },
-            );
-        }
+            showToast(undefined, 'Sucesso!', 'Disciplina cadastrada.')
 
-        const onSuccess = (tx, results) => {
-            console.log(results)
-            Alert.alert(
-                'Sucesso!',
-                'Disciplina cadastrada!',
-                [
-                    {
-                        text: 'Ok',
-                        onPress: () => navigation.navigate('Home'),
-                    },
-                ],
-                { cancelable: false },
-            );
-        }
+            navigation.navigate('Home');
 
-        cadastrar_disciplina(data, onSuccess, onError)
+        })
     }
 
     return (    

@@ -1,45 +1,39 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { Button, Input } from 'react-native-elements';
+import { Button, Input, Icon } from 'react-native-elements';
 import logo from '../../assets/logo.jpeg';
-import UserTeste from '../../database/user';
+import UserRepository from '../../database/user';
 import * as SecureStore from 'expo-secure-store';
-import Toast from 'react-native-toast-message';
-import { Constants } from 'react-native-unimodules';
+import {showToast, validarEmail} from '../../Funcs/funcs';
 
-const showToast = (message, title="", type="success", duration=3000, position="bottom") => {
-    Toast.show({
-        type: type,
-        position: position,
-        text1: title,
-        text2: message,
-        visibilityTime: duration,
-        autoHide: true
-    })
-}
-
-export default class App extends Component {
+export default class App extends React.Component {
     state = {
         email: '',
-        senha: ''
-    }
-
-    componentDidMount(){
-        console.log(Constants.systemFonts);
+        senha: '',
+        erroEmail: '',
+        mostrarSenha: false,
     }
     
     constructor(props) {
         super(props);
-        this.clicou = this.clicou.bind(this);
         this.cadastrar = this.cadastrar.bind(this);
         this.login = this.login.bind(this);
+        this.conferirEmail = this.conferirEmail.bind(this);
     }
 
-    clicou() {
-        if (this.state.email === 'appmobile@email.com' && this.state.senha === '123456') {
-            this.props.navigation.navigate('Home')
-        } else {
-            alert('Usuário ou senha incorretos. Por favor, tente novamente.')
+    async componentDidMount() {
+        const token = await SecureStore.getItemAsync('token');
+
+        if (token) {
+            const userRepository = new UserRepository();
+            userRepository.Authenticate(token, (error, result) => {
+                if (error) {
+                    console.log(error);
+                    return;
+                }
+
+                this.props.navigation.navigate('Home');
+            })
         }
     }
 
@@ -47,11 +41,21 @@ export default class App extends Component {
         this.props.navigation.navigate('CadastroUsuario');
     }
 
+    conferirEmail(email) {
+        if (!validarEmail(email)) {
+            this.setState({ erroEmail: 'E-mail inválido!' })
+            return;
+        }
+        this.setState({erroEmail: '', email})
+    }
+
     login() {
-        const userTeste = new UserTeste();
-        userTeste.Login(this.state.email, this.state.senha, async(result, error) => {
-            console.log('Result: ' + result)
-            
+        if (this.state.erroEmail !== '') {
+            showToast('error', 'Erro', 'Verifique o seu e-mail!');
+            return;
+        }
+        const userRepository = new UserRepository();
+        userRepository.Login(this.state.email, this.state.senha, async(result, error) => {            
             if(error) {
                 console.log(error)
                 return;
@@ -59,16 +63,13 @@ export default class App extends Component {
 
 
             if(!result.auth) {
-                showToast('Usuário ou senha incorretos.', 'Erro', 'error');
+                showToast('error', 'Erro', 'Usuário ou senha incorretos' );
                 return;
             }
-
+            const isAvailable = SecureStore.isAvailableAsync();
             await SecureStore.setItemAsync('token', result.token);
-            console.log('token gerado: ' + result.token);
             this.props.navigation.navigate('Home');
         })
-        console.log('Login')
-
     }
     
     render() {
@@ -82,14 +83,30 @@ export default class App extends Component {
                     labelStyle={styles.input}
                     inputContainerStyle={styles.inputContainer}
                     placeholder="E-mail"
-                    onChangeText={value => this.setState({email: value.toLowerCase()})}
+                    errorMessage={this.state.erroEmail}
+                    errorStyle={{ color: 'red', width: 300, alignSelf: 'center' }}
+                    onChangeText={value => this.conferirEmail(value)}
                 />
                 <Input
                     labelStyle={styles.input}
                     inputContainerStyle={styles.inputContainer}
-                    secureTextEntry={this.state.senha !== '' ? true : false}
+                    secureTextEntry={this.state.senha !== '' && !this.state.mostrarSenha ? true : false}
                     placeholder="Senha"
                     onChangeText={value => this.setState({ senha: value })}
+                    rightIcon={
+                        this.state.mostrarSenha ?
+                            <Icon
+                                name="eye-slash"
+                                type="font-awesome"
+                                onPress={() => this.setState({ mostrarSenha: false })}
+                            />
+                            :
+                            <Icon
+                                name="eye"
+                                type="font-awesome"
+                                onPress={() => this.setState({mostrarSenha: true})}
+                            />
+                    }
                 />
                 <Button
                     title="Login"
