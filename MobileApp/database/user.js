@@ -70,7 +70,5 @@ export default class UserRepository {
         .then((json) => {
             callback(json.error, json.result);
         })
-        
-
     }
 }

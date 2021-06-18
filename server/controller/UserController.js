@@ -58,9 +58,9 @@ export default class UserController {
 
             repository.Save(user, (error, result) => {
                 if(error) {
-                    return res.status(500).send({error});
+                    return res.status(500).send({error: error, result: null});
                 }
-                return res.status(201).send({result})
+                return res.status(201).send({ error: null, result: result})
             });
         });
 
